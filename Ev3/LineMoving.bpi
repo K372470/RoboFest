@@ -11,7 +11,7 @@ EndSub
 
 Sub GoToCornerOfTheMap
   #to right
-  GoUntilClosestLine(4)
+  GoUntilClosestLine(3)
   Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED/2,-100,170,True)
   Motor.ResetCount(MOVEMENT_MOTORS)
   While (Motor.GetCount(MOVEMENT_MOTORS)<600)

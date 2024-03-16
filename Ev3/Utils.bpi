@@ -12,7 +12,7 @@ Function GetColorLetter(in number color,out string letter)
 EndFunction
 
 Function ConfigureSensors(in number mode)
-  For port=1 To 4
+  For port=2 To 3
     Sensor.SetMode(port,mode)
   EndFor
 EndFunction
@@ -43,7 +43,7 @@ Function GetColorOfBrick(out number code)
   ConfigureSensors(@SENSOR_MODE_COLORS)
   code = -1
   While (code = -1)
-    For port=1 To 3
+    For port=2 To 2
       value1 = Sensor.ReadRawValue(port,0)
       value2 = Sensor.ReadRawValue(port+1,0)
       If(value1=value2 And value1>1 And value1<6) Then

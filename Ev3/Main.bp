@@ -25,12 +25,12 @@ EndWhile
 Motor.Stop(MOVEMENT_MOTORS,True)
 
 #go until maze ------------------------------------------------------------------
-GoUntilClosestLine(4)
+GoUntilClosestLine(3)
 Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED,-100,160,True)
 
 #maze ---------------------------------------------------------------------------
 For i=2 To 4
-  GoUntilClosestLine(1)
+  GoUntilClosestLine(2)
   Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED,100,160,True)
   
   Motor.ResetCount(MOVEMENT_MOTORS)
@@ -117,7 +117,7 @@ If(neededId=-1) Then
 EndIf
 #goForClosestTrack
 Motor.Start(MOVEMENT_MOTORS,-MOTOR_SPEED)
-While(Sensor.ReadRawValue(4,0)<>FoundTracks[neededId])
+While(Sensor.ReadRawValue(3,0)<>FoundTracks[neededId])
   Program.Delay(1)
 EndWhile
 goFinishLine:
