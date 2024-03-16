@@ -1,4 +1,0 @@
-Function GetColorOfBrick(in number port, out number code)
-  Sensor.SendUARTData(,)
-  Sensor.CommunicateI2C()
-EndFunction
