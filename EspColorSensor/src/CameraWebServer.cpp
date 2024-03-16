@@ -13,7 +13,7 @@ void CameraWebServer::initWifi(const char *ssid, const char *password)
     ESP_LOGI(WSTag, "...");
     delay(1000);
   }
-  ESP_LOGI(WSTag, "Wifi Ready!Connect from: %s",WiFi.localIP().toString());
+  ESP_LOGI(WSTag, "Wifi Ready!Connect from: %s", WiFi.localIP().toString());
 }
 
 esp_err_t CameraWebServer::send_jpeg_handler(httpd_req_t *req)
@@ -52,7 +52,6 @@ esp_err_t CameraWebServer::predict_color_handler(httpd_req_t *req)
 {
   esp_err_t err;
   lego_color_t color;
-
   err = getColorOfObject(color);
   if (err == ESP_OK)
     httpd_resp_sendstr(req, String(color).c_str());

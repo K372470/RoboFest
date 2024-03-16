@@ -50,7 +50,7 @@ static const camera_config_t DEFAULT_CAMERA_CONFIG = {
     .frame_size = DEFAULT_FRAME_SIZE,
 
     .jpeg_quality = 10,
-    .fb_count = 1,
+    .fb_count = 2,
     .fb_location = CAMERA_FB_IN_PSRAM,
-    .grab_mode = CAMERA_GRAB_LATEST,
+    .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
 };

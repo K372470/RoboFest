@@ -5,13 +5,12 @@
 #include "SerialCommand.h"
 #include "camera_config.h"
 #include <esp_camera.h>
-#include "camera_algorithms.h"
 #include "wifi_settings.h"
 
 const char *MAIN_TAG = "Main";
 
-// CommandManager cmdManager(&Serial);
-// CameraWebServer server;
+CommandManager cmdManager(&Serial);
+CameraWebServer server;
 
 void init_camera()
 {
@@ -24,13 +23,12 @@ void init_camera()
   ESP_LOGI(MAIN_TAG, "Initialising camera...", ESP.getPsramSize());
   delay(5000);
 
-  camera_fb_t* fb = esp_camera_fb_get();
+  camera_fb_t *fb = esp_camera_fb_get();
   if (!fb)
     ESP_LOGE(MAIN_TAG, "Camera capture failed");
   else
-    ESP_LOGI(MAIN_TAG,"Success");
+    ESP_LOGI(MAIN_TAG, "Success");
   esp_camera_fb_return(fb);
-
 }
 
 void setup()
@@ -40,8 +38,8 @@ void setup()
 #ifndef WIFI_SSID
 #warning "Try adding wifi_settings.h"
 #endif
-  // server.initWifi(WIFI_SSID, WIFI_PASS);
-  // server.begin();
+  server.initWifi(WIFI_SSID, WIFI_PASS);
+  server.begin();
 
   // cmdManager.registerCommands();
 }
@@ -49,8 +47,5 @@ void setup()
 void loop()
 {
   // cmdManager.readSerial();
-  lego_color_t color;
-  getColorOfObject(color);
-  Serial.println(color);
-  delay(100);
+  delay(1);
 }

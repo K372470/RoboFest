@@ -2,3 +2,4 @@
 .vscode
 EspColorSensor/src/wifi_settings.h
 EspColorSensor/*/src/wifi_settings.h
+EspColorSensor/src/wifi_settings.h

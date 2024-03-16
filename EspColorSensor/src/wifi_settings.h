@@ -1,2 +1,2 @@
-#define WIFI_SSID "abc"
-#define WIFI_PASS "123"
+#define WIFI_SSID "POCO C40"
+#define WIFI_PASS "12345678!"
