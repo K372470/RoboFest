@@ -1,0 +1,11 @@
+typedef enum {
+  COLOR_NONE,
+  COLOR_BLACK,
+  COLOR_BLUE,
+  COLOR_GREEN,
+  COLOR_YELLOW,
+  COLOR_RED,
+  COLOR_WHITE
+} lego_color_t;
+
+

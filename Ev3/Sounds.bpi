@@ -1,0 +1,37 @@
+Function PlayColorSounds(in number color)
+  If color = 2 Then
+    Speaker.Play(100,"Robofest/Blue")
+  ElseIf color=3 Then
+    Speaker.Play(100,"Robofest/Green")
+  ElseIf color=4 Then
+    Speaker.Play(100,"Robofest/Yellow")
+  ElseIf color=5 Then
+    Speaker.Play(100,"Robofest/Red")
+  EndIf
+  Speaker.Wait()
+EndFunction
+
+Function ReadCode(in number code)
+  codes[0] = Math.Floor(code/100)
+  codes[1] = Math.Remainder(Math.Floor(code/10),10)
+  codes[2] = Math.Remainder(code,10)
+  
+  If(codes[0]<>0) Then
+    For i=0 To 2
+      If codes[i] = 1 Then
+        Speaker.Play(100,"Robofest/One")
+      ElseIf codes[i]=2 Then
+        Speaker.Play(100,"Robofest/Two")
+      ElseIf codes[i]=3 Then
+        Speaker.Play(100,"Robofest/Three")
+      ElseIf codes[i]=4 Then
+        Speaker.Play(100,"Robofest/Four")
+      EndIf
+      Speaker.Wait()
+      Program.Delay(250)
+    EndFor
+  Else
+    Speaker.Play(100,"Robofest/Uh-oh")
+    Speaker.Wait()
+  EndIf
+EndFunction

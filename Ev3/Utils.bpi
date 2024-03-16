@@ -1,0 +1,58 @@
+
+Function GetColorLetter(in number color,out string letter)
+  If color = 2 Then
+    letter="B"
+  ElseIf color=3 Then
+    letter="G"
+  ElseIf color=4 Then
+    letter="Y"
+  ElseIf color=5 Then
+    letter="R"
+  EndIf
+EndFunction
+
+Function ConfigureSensors(in number mode)
+  For port=1 To 4
+    Sensor.SetMode(port,mode)
+  EndFor
+EndFunction
+
+Sub PrintCheckedLocations
+  LCD.Write(80,10,"Bricks:")
+  For i=1 To 4
+    GetColorLetter(CheckedLocations[i],letter)
+    LCD.Write(70+i*10,20,letter)
+  EndFor
+EndSub
+
+Function GetLastCode(in number code,out number lastCode)
+  temp = 2+3+4+5
+  #all colors sum
+  temp -= Math.Floor(code/100)
+  temp-= Math.Remainder(Math.Floor(code/10),10)
+  temp-= Math.Remainder(code,10)
+  lastCode=temp
+EndFunction
+
+Function GetColorOfBrick(out number code)
+  Motor.Schedule(@FORKLIFT_MOTOR,-@MOTOR_SPEED*2,0,@SENSOR_LINE_DEGRES_MOVEMENT,0,@True)
+  Program.Delay(500)
+  If(Motor.IsBusy(@FORKLIFT_MOTOR)) Then
+    Motor.Stop(@FORKLIFT_MOTOR,@True)
+  EndIf
+  ConfigureSensors(@SENSOR_MODE_COLORS)
+  code = -1
+  While (code = -1)
+    For port=1 To 3
+      value1 = Sensor.ReadRawValue(port,0)
+      value2 = Sensor.ReadRawValue(port+1,0)
+      If(value1=value2 And value1>1 And value1<6) Then
+        code = value1
+      EndIf
+      Motor.Move(@MOVEMENT_MOTORS,@MOTOR_SPEED/3,5,@True)
+      Program.Delay(50)
+    EndFor
+  EndWhile
+  ConfigureSensors(@SENSOR_MODE_LIGHT)
+  Motor.Move(@FORKLIFT_MOTOR,@MOTOR_SPEED*2,@SENSOR_LINE_DEGRES_MOVEMENT,@True)
+EndFunction

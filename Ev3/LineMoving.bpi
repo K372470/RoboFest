@@ -1,0 +1,40 @@
+Function CalculateLineVariance(out number degres)
+  left = Sensor.ReadPercent(2)
+  right = Sensor.ReadPercent(3)
+  degres = (right-left)/1.3
+EndFunction
+
+Sub StartMoveWithLine
+  CalculateLineVariance(degres)
+  Motor.StartSteer(MOVEMENT_MOTORS,MOTOR_SPEED,degres)
+EndSub
+
+Sub GoToCornerOfTheMap
+  #to right
+  GoUntilClosestLine(4)
+  Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED/2,-100,170,True)
+  Motor.ResetCount(MOVEMENT_MOTORS)
+  While (Motor.GetCount(MOVEMENT_MOTORS)<600)
+    StartMoveWithLine()
+  EndWhile
+  CalculateLineVariance(degres)
+  Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED/2,degres,20,True)
+  Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED/2,100,170,True)
+  Motor.ResetCount(MOVEMENT_MOTORS)
+  Motor.Start(MOVEMENT_MOTORS,MOTOR_SPEED)
+  While (Motor.GetCount(MOVEMENT_MOTORS)<500)
+    Program.Delay(1)
+  EndWhile
+  Motor.Stop(MOVEMENT_MOTORS,True)
+  Program.Delay(250)
+  Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED/2,100,160,True)
+  Motor.Move(MOVEMENT_MOTORS,-MOTOR_SPEED/3,43,True)
+  Program.Delay(500)
+EndSub
+
+Function GoUntilClosestLine(in number port)
+  While(Sensor.ReadPercent(port)>@BLACK_COLOR_OFFSET)
+    StartMoveWithLine()
+  EndWhile
+  Motor.Move(@MOVEMENT_MOTORS,@MOTOR_SPEED,100,@True)
+EndFunction

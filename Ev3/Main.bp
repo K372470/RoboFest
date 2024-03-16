@@ -1,0 +1,128 @@
+include "Settings"
+include "ArCodeReader"
+include "LineMoving"
+include "Utils"
+include "Sounds"
+include "Camera"
+
+ArcUcoCode = 0
+CheckedLocations[0] = 0
+
+LCD.Clear()
+
+# START ____________________________________________________________
+ConfigureSensors(SENSOR_MODE_LIGHT)
+ReadArcUco(code)
+LCD.Write(10,60,code)
+ReadCode(code)
+ArcUcoCode = code
+
+Motor.Move(MOVEMENT_MOTORS,-MOTOR_SPEED,60,True)
+Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED,100,200,False)
+While (Sensor.ReadPercent(3)>BLACK_COLOR_OFFSET)
+  Motor.StartSteer(MOVEMENT_MOTORS,MOTOR_SPEED/2,100)
+EndWhile
+Motor.Stop(MOVEMENT_MOTORS,True)
+
+#go until maze ------------------------------------------------------------------
+GoUntilClosestLine(4)
+Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED,-100,160,True)
+
+#maze ---------------------------------------------------------------------------
+For i=2 To 4
+  GoUntilClosestLine(1)
+  Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED,100,160,True)
+  
+  Motor.ResetCount(MOVEMENT_MOTORS)
+  While(Motor.GetCount(MOVEMENT_MOTORS)<370)
+    StartMoveWithLine()
+  EndWhile
+  Motor.Stop(MOVEMENT_MOTORS,True)
+  
+  #remember color --------------------------------
+  Camera.GetColorOfBrick(code)
+  PlayColorSounds(code)
+  CheckedLocations[i] = code
+  BLOCK_SUM=BLOCK_SUM-CheckedLocations[i]
+  
+  #go back ---------------------------------------
+  Motor.MoveSync(MOVEMENT_MOTORS,-MOTOR_SPEED,-MOTOR_SPEED,Motor.GetCount(MOVEMENT_MOTORS),True)
+  Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED,-100,180,True)
+  Motor.Move(MOVEMENT_MOTORS,MOTOR_SPEED,40,False)
+  While(Sensor.ReadPercent(2)>BLACK_COLOR_OFFSET)
+    Motor.StartSteer(MOVEMENT_MOTORS,MOTOR_SPEED/2,-100)
+  EndWhile
+  Motor.Move(MOVEMENT_MOTORS,MOTOR_SPEED,50,True)
+  
+EndFor
+
+CheckedLocations[1]=BLOCK_SUM
+PrintCheckedLocations()
+Program.Delay(1000)
+
+#on that moment you can use ArcUcoCode and CheckedLocations[]
+GoToCornerOfTheMap()
+ConfigureSensors(SENSOR_MODE_COLORS)
+FoundTracks[0] = 0
+lastId = 0
+
+moveLenght = 1100
+Motor.ResetCount(MOVEMENT_MOTORS)
+Motor.Move(FORKLIFT_MOTOR,MOTOR_SPEED*2,50,True)
+Program.Delay(500)
+While(Motor.GetCount(MOVEMENT_MOTORS)<moveLenght And lastId<4)
+  Motor.Start(MOVEMENT_MOTORS,MOTOR_SPEED)
+  code = -1
+  While (code = -1 And Motor.GetCount(MOVEMENT_MOTORS)<moveLenght)
+    For port=1 To 3
+      value1 = Sensor.ReadRawValue(port,0)
+      value2 = Sensor.ReadRawValue(port+1,0)
+      If(value1=value2 And value1>1 And value1<6) Then
+        code = value1
+      EndIf
+      Program.Delay(1)
+    EndFor
+  EndWhile
+  
+  Motor.Stop(MOVEMENT_MOTORS,True)
+  If(Motor.GetCount(MOVEMENT_MOTORS)<moveLenght) Then
+    FoundTracks[lastId]=code
+    
+    If(CheckedLocations[Math.Floor(ArcUcoCode/100)]=code) Then
+      Goto goFinishLine
+    EndIf
+    GetColorLetter(code,letter)
+    LCD.Write(60+lastId*10,60,letter)
+    lastId++
+  EndIf
+  Motor.Move(MOVEMENT_MOTORS,MOTOR_SPEED,70,False)
+  Program.Delay(250)
+EndWhile
+#collected data about lines------------------------
+neededId = -1
+For i=0 To lastId
+  #didnt find first while was driving
+  If(FoundTracks[i]=CheckedLocations[Math.Remainder(Math.Floor(ArcUcoCode/10),10)]) Then
+    neededId = i
+  EndIf
+EndFor
+GetLastCode(ArcUcoCode,code)
+If(neededId=-1) Then
+  For i=0 To lastId
+    #didnt find second
+    If(FoundTracks[i]=code) Then
+      neededId = i
+    EndIf
+  EndFor
+EndIf
+#goForClosestTrack
+Motor.Start(MOVEMENT_MOTORS,-MOTOR_SPEED)
+While(Sensor.ReadRawValue(4,0)<>FoundTracks[neededId])
+  Program.Delay(1)
+EndWhile
+goFinishLine:
+Motor.Move(MOVEMENT_MOTORS,MOTOR_SPEED,70,True)
+Motor.MoveSteer(MOVEMENT_MOTORS,MOTOR_SPEED,-100,160,True)
+Motor.Move(MOVEMENT_MOTORS,MOTOR_SPEED,700,True)
+Motor.Move(FORKLIFT_MOTOR,-MOTOR_SPEED*2,50,True)
+#CUUUUUUUUUUUUUUUUUUMMMMMM

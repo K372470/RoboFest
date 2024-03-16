@@ -1,0 +1,78 @@
+Function BytesToDecimal(in number[] array,out number decimal)
+  decimal = 0
+  For i=0 To 15
+    decimal+=Math.Power(2,i)*array[i]
+  EndFor
+EndFunction
+
+Function DecodeArcUcoNumber(in number[] input,out number code)
+  
+  #default
+  code=0
+  BytesToDecimal(input,result)
+  If(@CODES[result]<>0) Then
+    code = @CODES[result]
+  EndIf
+  #left
+  If(code=0) Then
+    For y = 0 To 3
+      For x = 0 To 3
+        temp[x+y*4] = input[x * 4 + (3 - y)]
+      EndFor
+    EndFor
+    BytesToDecimal(temp,result)
+    If(@CODES[result]<>0) Then
+      code = @CODES[result]
+    EndIf
+  EndIf
+  
+  #right
+  If(code=0) Then
+    For y = 0 To 3
+      For x = 0 To 3
+        temp[x+y*4] = input[(3 - x) * 4 + y]
+      EndFor
+    EndFor
+    BytesToDecimal(temp,result)
+    If(@CODES[result]<>0) Then
+      code = @CODES[result]
+    EndIf
+  EndIf
+  #bottom
+  If(code=0) Then
+    For y = 0 To 3
+      For x = 0 To 3
+        temp[x+y*4] = input[(3 - y) * 4 + (3 - x)]
+      EndFor
+    EndFor
+    BytesToDecimal(temp,result)
+    If(@CODES[result]<>0) Then
+      code = @CODES[result]
+    EndIf
+  EndIf
+EndFunction
+
+Function ReadArcUco(out number code)
+  LCD.Clear()
+  Motor.Start(@MOVEMENT_MOTORS,-@MOTOR_SPEED/4)
+  While (Sensor.ReadPercent(2)>@BLACK_COLOR_OFFSET And Sensor.ReadPercent(3)>@BLACK_COLOR_OFFSET)
+    Program.Delay(2)
+  EndWhile
+  Motor.Move(@MOVEMENT_MOTORS,-@MOTOR_SPEED/3,48,@True)
+  For i=1 To 4
+    Program.Delay(250)
+    For port=1 To 4
+      value = Sensor.ReadPercent(port)
+      result=0
+      If (value>@BLACK_COLOR_OFFSET/2) Then
+        result=1
+        LCD.Write(port*10,i*10,"X")
+      EndIf
+      ArcUco[(4-i)*4+(4-port)]=result
+    EndFor
+    Motor.Move(@MOVEMENT_MOTORS,-@MOTOR_SPEED/4,33,@True)
+  EndFor
+  DecodeArcUcoNumber(ArcUco,result)
+  code = result
+  Program.Delay(1000)
+EndFunction

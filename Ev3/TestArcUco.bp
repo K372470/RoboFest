@@ -1,0 +1,40 @@
+include "Settings"
+include "ArCodeReader"
+include "LineMoving"
+include "Utils"
+include "Sounds"
+
+Function PlayColorSounds2(in number color)
+  If color = 2 Then
+    Speaker.Play(100,"fzdgxhcjhv/Blue")
+  ElseIf color=3 Then
+    Speaker.Play(100,"fzdgxhcjhv/Green")
+  ElseIf color=4 Then
+    Speaker.Play(100,"fzdgxhcjhv/Yellow")
+  ElseIf color=5 Then
+    Speaker.Play(100,"fzdgxhcjhv/Red")
+  EndIf
+  Speaker.Wait()
+EndFunction
+
+ConfigureSensors(SENSOR_MODE_COLORS)
+MOVEMENT_MOTORS="BD"
+lastId=0
+moveLenght=1300
+Motor.ResetCount(MOVEMENT_MOTORS)
+While(Motor.GetCount(MOVEMENT_MOTORS)<moveLenght And lastId<4)
+  Motor.Start(MOVEMENT_MOTORS,MOTOR_SPEED)
+  color = Sensor.ReadRawValue(4,0)
+  While ((color<=1 Or color>=6)And Motor.GetCount(MOVEMENT_MOTORS)<moveLenght)
+    Program.Delay(2)
+    color = Sensor.ReadRawValue(4,0)
+  EndWhile
+  Motor.Stop(MOVEMENT_MOTORS,True)
+  If(Motor.GetCount(MOVEMENT_MOTORS)<moveLenght) Then
+    lastId++
+    PlayColorSounds2(color)
+  EndIf
+  Program.Delay(200)
+  Motor.Move(MOVEMENT_MOTORS,MOTOR_SPEED/4,70,False)
+EndWhile
+Program.Delay(3000)

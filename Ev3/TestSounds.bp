@@ -1,0 +1,4 @@
+Speaker.Play(10,"Robofest/SystemActivated")
+Speaker.Wait()
+Speaker.Play(10,"Robofest/SystemComplete")
+Speaker.Wait()
