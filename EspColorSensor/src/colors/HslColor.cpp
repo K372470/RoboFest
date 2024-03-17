@@ -1,4 +1,6 @@
 #include "HslColor.h"
+#include <cstdint>
+#include <stdlib.h>
 
 HslColor::HslColor(uint8_t r, uint8_t g, uint8_t b)
 {
@@ -12,10 +14,10 @@ HslColor::HslColor(uint8_t r, uint8_t g, uint8_t b)
     delta = Cmax - Cmin;
     l = (Cmax + Cmin) / 2; // l
 
-    if (Cmax != 0)
-      s = (delta / (1 - abs(2 * l - 1))); // s
-    else
-      s = 0;
+    // if (Cmax != 0)
+    //   s = (delta / (1 - abs(2 * l - 1))); // s
+    // else
+    //   s = 0;
 
     if (dr == Cmax)
       h = (dg - db) / delta;
@@ -24,28 +26,27 @@ HslColor::HslColor(uint8_t r, uint8_t g, uint8_t b)
     else if (db == Cmax)
       h = 4 + (dr - dg) / delta;
     h *= 60.0;
-    if (h < 0.0)
-      h += 360.0;
+    // if (h < 0.0)
+    // h += 360.0;
   }
 }
 
 lego_color_t HslColor::convertToLego()
 {
-  float hue = this->GetHue();
-  float sat = this->GetSaturation();
-  float lgt = this->GetLightness();
+  int hue = (int)(this->GetHue());
+  int lgt = (int)(this->GetLightness() * 100);
 
-  if (lgt < 0.05F)
+  if (lgt < 7)
     return COLOR_BLACK;
-  if (lgt > 0.8F)
+  if (lgt > 67)
     return COLOR_WHITE;
-  if (hue < 75.0F)
-    return COLOR_YELLOW;
-  if (hue > 340.0F)
+  if (hue < 25)
     return COLOR_RED;
-  if (hue < 160.0F)
+  if (hue < 75)
+    return COLOR_YELLOW;
+  if (hue < 160)
     return COLOR_GREEN;
-  if (hue < 280.0F)
+  if (hue < 280)
     return COLOR_BLUE;
 
   return COLOR_NONE;
@@ -54,11 +55,6 @@ lego_color_t HslColor::convertToLego()
 float HslColor::GetHue()
 {
   return h;
-}
-
-float HslColor::GetSaturation()
-{
-  return s;
 }
 
 float HslColor::GetLightness()

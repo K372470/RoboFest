@@ -1,5 +1,5 @@
-#include <Arduino.h>
 #include "lego_color_t.h"
+#include <cstdint>
 class HslColor
 {
 public:

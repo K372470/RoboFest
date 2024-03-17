@@ -1,6 +1,6 @@
 #include "CameraWebServer.h"
-#include "camera_algorithms.h"
-const char *WSTag = "WebServer";
+#include <camera-functions/camera_algorithms.h>
+#define WSTag "WebServer"
 
 void CameraWebServer::initWifi(const char *ssid, const char *password)
 {
@@ -59,7 +59,17 @@ esp_err_t CameraWebServer::predict_color_handler(httpd_req_t *req)
     httpd_resp_send_500(req);
   return err;
 }
-
+esp_err_t CameraWebServer::get_lines_handler(httpd_req_t *req)
+{
+  esp_err_t err;
+  lego_color_t color;
+  err = getFastLine(color);
+  if (err == ESP_OK)
+    httpd_resp_sendstr(req, String(color).c_str());
+  else
+    httpd_resp_send_500(req);
+  return err;
+}
 void CameraWebServer::begin()
 {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
@@ -73,10 +83,15 @@ void CameraWebServer::begin()
                                .method = HTTP_GET,
                                .handler = predict_color_handler,
                                .user_ctx = NULL};
+  httpd_uri_t find_lines = {.uri = "/lines",
+                            .method = HTTP_GET,
+                            .handler = get_lines_handler,
+                            .user_ctx = NULL};
 
   if (httpd_start(&stream_httpd, &config) == ESP_OK)
   {
     httpd_register_uri_handler(stream_httpd, &index_uri);
     httpd_register_uri_handler(stream_httpd, &predict_color);
+    httpd_register_uri_handler(stream_httpd, &find_lines);
   }
 }
