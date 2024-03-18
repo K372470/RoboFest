@@ -110,7 +110,7 @@ esp_err_t getColorOfObject(lego_color_t &result)
     lego_color_t clr = color.convertToLego();
     results[N] = clr;
 
-    ESP_LOGD(CAMERA_TAG, "Received color HSV: (%f %f %f) and Prediction: [%u]", color.GetHue(), color.GetSaturation(), color.GetLightness(), clr);
+    ESP_LOGD(CAMERA_TAG, "Received color Hue Light: (%f %f) and Prediction: [%u]", color.GetHue(), color.GetLightness(), clr);
     vTaskDelay(50 / portTICK_PERIOD_MS);
   }
   result = (lego_color_t)mostFrequent(results, FRAME_COUNT);
@@ -126,7 +126,12 @@ esp_err_t getColorOfObject(lego_color_t &result)
 
 esp_err_t getFastLine(lego_color_t &result)
 {
-  result = COLOR_NONE;
+    return esp_err_t();
+}
+
+esp_err_t getLines(lego_color_t* results,size_t &lenght)
+{
+  size_t leng = 0;
   camera_fb_t *fb = NULL;
   esp_err_t err = ESP_OK;
   uint8_t *rgb_buffer = NULL;
@@ -160,23 +165,31 @@ esp_err_t getFastLine(lego_color_t &result)
     ESP_LOGE(CAMERA_TAG, "Unable to transfer jpeg to rgb");
     return ESP_FAIL;
   }
+  results = (lego_color_t *)malloc(4 * sizeof(lego_color_t));
+  lego_color_t previous = COLOR_NONE;
+  size_t y = H * 3 / 5;
+  for (size_t x = 0; (x < W) & (leng < 4); x++)
+  {
+    size_t i = (x + y * W) * 3;
+    uint8_t B = rgb_buffer[i];
+    uint8_t G = rgb_buffer[i + 1];
+    uint8_t R = rgb_buffer[i + 2];
 
-  size_t i = (W / 2 + (H - 1) * W) * 3;
-  uint8_t R = rgb_buffer[i + 2];
-  uint8_t G = rgb_buffer[i + 1];
-  uint8_t B = rgb_buffer[i];
+    lego_color_t color = HslColor(R, G, B).convertToLego();
+    if (previous != color & color > COLOR_BLACK & color < COLOR_WHITE)
+    {
+      results[leng] = color;
+      leng++;
+      ESP_LOGD(CAMERA_TAG,"Found line %i",(int)color);
+    }
+    previous=color;
+  }
 
   free(rgb_buffer);
-  HslColor color = HslColor(R, G, B);
-  result = color.convertToLego();
+  free(results);
 
   int completion_time = (int)((esp_timer_get_time() - startTime) / 1000);
-  ESP_LOGI(CAMERA_TAG, "Color Prediction [%u] in %ims", result, completion_time);
+  ESP_LOGI(CAMERA_TAG, "Color Prediction [%u] in %ims", results, completion_time);
 
   return ESP_OK;
-}
-
-esp_err_t getLines(lego_color_t *result, size_t lenght)
-{
-  return esp_err_t();
 }

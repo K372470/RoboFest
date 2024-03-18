@@ -62,10 +62,11 @@ esp_err_t CameraWebServer::predict_color_handler(httpd_req_t *req)
 esp_err_t CameraWebServer::get_lines_handler(httpd_req_t *req)
 {
   esp_err_t err;
-  lego_color_t color;
-  err = getFastLine(color);
+  lego_color_t *colors;
+  size_t size = 0;
+  err = getLines(colors, size);
   if (err == ESP_OK)
-    httpd_resp_sendstr(req, String(color).c_str());
+    httpd_resp_sendstr(req, String(size).c_str());
   else
     httpd_resp_send_500(req);
   return err;

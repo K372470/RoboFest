@@ -4,4 +4,4 @@
 
 esp_err_t getColorOfObject(lego_color_t &result);
 esp_err_t getFastLine(lego_color_t &result);
-esp_err_t getLines(lego_color_t* result,size_t lenght);
+esp_err_t getLines(lego_color_t* result,size_t &lenght);
